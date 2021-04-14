@@ -110,6 +110,22 @@ iostream
 common.h
 -
 
+../include/rg/Error.h
+iostream
+-
+glad/glad.h
+-
+
+../include/rg/Texture2D.h
+glad/glad.h
+-
+stb_image.h
+-
+rg/Error.h
+-
+string.h
+-
+
 ../include/stb_image.h
 stb_image.h
 ../include/stb_image.h
@@ -152,7 +168,7 @@ stdint.h
 KHR/khrplatform.h
 -
 
-/home/julija/Desktop/bla/src/main.cpp
+/home/elgrande/projekat_iz_racunarske_grafike/src/main.cpp
 glad/glad.h
 -
 GLFW/glfw3.h
@@ -176,6 +192,8 @@ learnopengl/camera.h
 learnopengl/model.h
 -
 iostream
+-
+rg/Texture2D.h
 -
 
 configuration/root_directory.h
