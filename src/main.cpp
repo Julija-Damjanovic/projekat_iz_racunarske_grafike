@@ -35,6 +35,8 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+glm::vec3 position;
+
 int main()
 {
     // glfw: initialize and configure
@@ -239,7 +241,7 @@ int main()
 
 
     pozadinaShader.use();
-    pozadinaShader.setInt("pozadina", 0);
+    pozadinaShader.setInt("skybox", 0);
 
     // render loop
     // -----------
@@ -263,6 +265,10 @@ int main()
         // draw scene as normal
         shader.use();
         glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, position);
+        model = glm::rotate(model, 60.0f, glm::vec3(1.0, 0, 1.0));
+        model = glm::scale(model, glm::vec3(1.5, 1.5, 1.0));
+
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         shader.setMat4("model", model);
@@ -329,6 +335,22 @@ void processInput(GLFWwindow *window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+
+    if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+        position -= glm::vec3 (0.01, 0, 0);
+    }
+    if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+        position += glm::vec3 (0.01, 0, 0);
+    }
+    if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+        position -= glm::vec3 (0.02, 0, 0.02);
+    }if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+        position += glm::vec3 (0.02, 0, 0.02);
+    }if(glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS){
+        position += glm::vec3 (0, 0.01, 0);
+    }if(glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS){
+        position -= glm::vec3 (0, 0.01, 0);
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
