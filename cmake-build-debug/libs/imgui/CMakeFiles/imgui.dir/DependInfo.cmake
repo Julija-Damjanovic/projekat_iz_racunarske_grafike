@@ -4,13 +4,13 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/julija/Desktop/projekat_iz_racunarske_grafike/libs/imgui/src/imgui.cpp" "/home/julija/Desktop/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui.cpp.o"
-  "/home/julija/Desktop/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_demo.cpp" "/home/julija/Desktop/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_demo.cpp.o"
-  "/home/julija/Desktop/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_draw.cpp" "/home/julija/Desktop/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_draw.cpp.o"
-  "/home/julija/Desktop/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_impl_glfw.cpp" "/home/julija/Desktop/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_impl_glfw.cpp.o"
-  "/home/julija/Desktop/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_impl_opengl3.cpp" "/home/julija/Desktop/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_impl_opengl3.cpp.o"
-  "/home/julija/Desktop/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_tables.cpp" "/home/julija/Desktop/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_tables.cpp.o"
-  "/home/julija/Desktop/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_widgets.cpp" "/home/julija/Desktop/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_widgets.cpp.o"
+  "/home/elgrande/projekat_iz_racunarske_grafike/libs/imgui/src/imgui.cpp" "/home/elgrande/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui.cpp.o"
+  "/home/elgrande/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_demo.cpp" "/home/elgrande/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_demo.cpp.o"
+  "/home/elgrande/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_draw.cpp" "/home/elgrande/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_draw.cpp.o"
+  "/home/elgrande/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_impl_glfw.cpp" "/home/elgrande/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_impl_glfw.cpp.o"
+  "/home/elgrande/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_impl_opengl3.cpp" "/home/elgrande/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_impl_opengl3.cpp.o"
+  "/home/elgrande/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_tables.cpp" "/home/elgrande/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_tables.cpp.o"
+  "/home/elgrande/projekat_iz_racunarske_grafike/libs/imgui/src/imgui_widgets.cpp" "/home/elgrande/projekat_iz_racunarske_grafike/cmake-build-debug/libs/imgui/CMakeFiles/imgui.dir/src/imgui_widgets.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -27,7 +27,7 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/home/julija/Desktop/projekat_iz_racunarske_grafike/cmake-build-debug/libs/glad/CMakeFiles/glad.dir/DependInfo.cmake"
+  "/home/elgrande/projekat_iz_racunarske_grafike/cmake-build-debug/libs/glad/CMakeFiles/glad.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

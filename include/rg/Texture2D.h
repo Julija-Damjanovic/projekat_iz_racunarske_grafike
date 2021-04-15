@@ -45,12 +45,6 @@ public:
 
         m_Id = textureID;
     }
-    void active(GLenum e){
-        glActiveTexture(e);
-    }
-    void bind(){
-        glBindTexture(GL_TEXTURE_2D, m_Id);
-    }
 };
 
 #endif //PROJECT_BASE_TEXTURE2D_H
