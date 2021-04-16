@@ -84,11 +84,10 @@ int main()
 
     // build and compile shaders
     // -------------------------
-    Shader teksturaShader("resources/shaders/teksturaKocka.vs", "resources/shaders/teksturaKocka.fs");
     Shader pozadinaShader("resources/shaders/pozadina.vs", "resources/shaders/pozadina.fs");
     Shader refleksijaShader("resources/shaders/refleksijaKocka.vs", "resources/shaders/refleksijaKocka.fs");
 
-    Shader lightingShader("resources/shaders/lighting_maps.vs", "resources/shaders/lighting_maps.fs");
+    Shader objekatShader("resources/shaders/objekatKocka.vs", "resources/shaders/objekatKocka.fs");
     Shader lightCubeShader("resources/shaders/svetloKocka.vs", "resources/shaders/svetloKocka.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -188,17 +187,6 @@ int main()
 
 
 
-    // kocka VAO
-    unsigned int kockaVAO, kockaVBO;
-    glGenVertexArrays(1, &kockaVAO);
-    glGenBuffers(1, &kockaVBO);
-    glBindVertexArray(kockaVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, kockaVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(kockaVertices), &kockaVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 
     unsigned int svetloVAO, svetloVBO;
     glGenVertexArrays(1, &svetloVAO);
@@ -247,10 +235,8 @@ int main()
 
     // load textures
     // -------------
-    Texture2D kockaTexture (FileSystem::getPath("resources/textures/31299399748_341826b35c_k.jpg").c_str());
-
-    Texture2D diffuseMap (FileSystem::getPath("resources/textures/174771147_199690565046898_2396728120832877832_n.jpg").c_str());
-    Texture2D specularMap (FileSystem::getPath("resources/textures/174607555_465162094721163_1576042843886281292_n.jpg").c_str());
+    Texture2D diffuseMap (FileSystem::getPath("resources/textures/Tekstura.jpg").c_str());
+    Texture2D specularMap (FileSystem::getPath("resources/textures/SpecularMap.jpg").c_str());
 
     vector<std::string> faces
             {
@@ -266,22 +252,15 @@ int main()
     // shader configuration
     // --------------------
 
-    lightingShader.use();
-    lightingShader.setInt("material.diffuse", 0);
-    lightingShader.setInt("material.specular", 1);
-
-    teksturaShader.use();
-    teksturaShader.setInt("texture1", 0);
-
     refleksijaShader.use();
     refleksijaShader.setInt("refleksija", 0);
 
     pozadinaShader.use();
     pozadinaShader.setInt("pozadina", 0);
 
-    lightingShader.use();
-    lightingShader.setInt("material.diffuse", 0);
-    lightingShader.setInt("material.specular", 1);
+    objekatShader.use();
+    objekatShader.setInt("material.diffuse", 0);
+    objekatShader.setInt("material.specular", 1);
 
     // render loop
     // -----------
@@ -303,32 +282,16 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-        // teksturaKocka
-        teksturaShader.use();
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, position);
-        model = glm::rotate(model, 60.0f, glm::vec3(1.0, 0, 1.0));
-        model = glm::scale(model, glm::vec3(1.5, 1.5, 1.0));
-
-        glm::mat4 view = camera.GetViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        teksturaShader.setMat4("model", model);
-        teksturaShader.setMat4("view", view);
-        teksturaShader.setMat4("projection", projection);
-        // cubes
-        glBindVertexArray(kockaVAO);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, kockaTexture.Id);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
 
         // refleksijaKocka
         refleksijaShader.use();
-        model = glm::mat4(1.0f);
+        glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3 (3,0,5));
         model = glm::rotate(model, 30.0f, glm::vec3(1.0, 0, 1.0));
         model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
+
+        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
         refleksijaShader.setMat4("model", model);
         refleksijaShader.setMat4("view", view);
@@ -345,28 +308,36 @@ int main()
 
         //svetleca kocka
         // be sure to activate shader when setting uniforms/drawing objects
-        lightingShader.use();
-        lightingShader.setVec3("light.position", lightPos);
-        lightingShader.setVec3("viewPos", camera.Position);
+        objekatShader.use();
+
+        // directional light
+        objekatShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        objekatShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+        objekatShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        objekatShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+        objekatShader.setVec3("viewPos", camera.Position);
+        objekatShader.setFloat("material.shininess", 32.0f);
 
         // light properties
-        lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
-        lightingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
-        lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-
-        // material properties
-        lightingShader.setFloat("material.shininess", 64.0f);
+        objekatShader.setVec3("pointLight.position", lightPos);
+        objekatShader.setVec3("pointLight.ambient", 0.05f, 0.05f, 0.05f);
+        objekatShader.setVec3("pointLight.diffuse", 0.8f, 0.8f, 0.8f);
+        objekatShader.setVec3("pointLight.specular", 1.0f, 1.0f, 1.0f);
+        objekatShader.setFloat("pointLight.constant", 1.0f);
+        objekatShader.setFloat("pointLight.linear", 0.09);
+        objekatShader.setFloat("pointLight.quadratic", 0.032);
 
         // view/projection transformations
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         view = camera.GetViewMatrix();
-        lightingShader.setMat4("projection", projection);
-        lightingShader.setMat4("view", view);
+        objekatShader.setMat4("projection", projection);
+        objekatShader.setMat4("view", view);
 
         // world transformation
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3 (3,1,2));
-        lightingShader.setMat4("model", model);
+        model = glm::translate(model, position);
+        objekatShader.setMat4("model", model);
 
         // bind diffuse map
         glActiveTexture(GL_TEXTURE0);
@@ -380,7 +351,7 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
-        //lampa
+        //tackasto svetlo
         // also draw the lamp object
         lightCubeShader.use();
         lightCubeShader.setMat4("projection", projection);
@@ -422,14 +393,12 @@ int main()
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &kockaVAO);
     glDeleteVertexArrays(1, &pozadinaVAO);
     glDeleteVertexArrays(1, &svetloVAO);
     glDeleteVertexArrays(1, &svetlecaKockaVAO);
     glDeleteVertexArrays(1, &refleksijaVAO);
     glDeleteBuffers(1, &svetloVBO);
     glDeleteBuffers(1, &svetlecaKockaVBO);
-    glDeleteBuffers(1, &kockaVBO);
     glDeleteBuffers(1, &refleksijaVBO);
     glDeleteBuffers(1, &pozadinaVAO);
 
