@@ -37,6 +37,9 @@ float lastFrame = 0.0f;
 
 glm::vec3 position;
 
+// lighting
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 int main()
 {
     // glfw: initialize and configure
@@ -83,7 +86,10 @@ int main()
     // -------------------------
     Shader teksturaShader("resources/shaders/teksturaKocka.vs", "resources/shaders/teksturaKocka.fs");
     Shader pozadinaShader("resources/shaders/pozadina.vs", "resources/shaders/pozadina.fs");
-    Shader refleksijaShader("resources/shaders/rekleksijaKocka.vs", "resources/shaders/rekleksijaKocka.fs");
+    Shader refleksijaShader("resources/shaders/refleksijaKocka.vs", "resources/shaders/refleksijaKocka.fs");
+
+    Shader lightingShader("resources/shaders/lighting_maps.vs", "resources/shaders/lighting_maps.fs");
+    Shader lightCubeShader("resources/shaders/svetloKocka.vs", "resources/shaders/svetloKocka.fs");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -182,10 +188,6 @@ int main()
 
 
 
-
-
-
-
     // kocka VAO
     unsigned int kockaVAO, kockaVBO;
     glGenVertexArrays(1, &kockaVAO);
@@ -197,15 +199,40 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    unsigned int svetloVAO, svetloVBO;
+    glGenVertexArrays(1, &svetloVAO);
+    glGenBuffers(1, &svetloVBO);
+    glBindVertexArray(svetloVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, svetloVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(kockaVertices), &kockaVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+
+    unsigned int svetlecaKockaVAO, svetlecaKockaVBO;
+    glGenVertexArrays(1, &svetlecaKockaVAO);
+    glGenBuffers(1, &svetloVBO);
+    glBindVertexArray(svetloVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, svetloVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(kockaVertices), &kockaVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 
-
-
-
-
-
-
+    unsigned int refleksijaVAO, refleksijaVBO;
+    glGenVertexArrays(1, &refleksijaVAO);
+    glGenBuffers(1, &refleksijaVBO);
+    glBindVertexArray(refleksijaVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, refleksijaVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(kockaVertices), &kockaVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 
     // skybox VAO
     unsigned int pozadinaVAO, pozadinaVBO;
@@ -222,6 +249,8 @@ int main()
     // -------------
     Texture2D kockaTexture (FileSystem::getPath("resources/textures/31299399748_341826b35c_k.jpg").c_str());
 
+    Texture2D diffuseMap (FileSystem::getPath("resources/textures/174771147_199690565046898_2396728120832877832_n.jpg").c_str());
+    Texture2D specularMap (FileSystem::getPath("resources/textures/174607555_465162094721163_1576042843886281292_n.jpg").c_str());
 
     vector<std::string> faces
             {
@@ -237,6 +266,10 @@ int main()
     // shader configuration
     // --------------------
 
+    lightingShader.use();
+    lightingShader.setInt("material.diffuse", 0);
+    lightingShader.setInt("material.specular", 1);
+
     teksturaShader.use();
     teksturaShader.setInt("texture1", 0);
 
@@ -245,6 +278,10 @@ int main()
 
     pozadinaShader.use();
     pozadinaShader.setInt("pozadina", 0);
+
+    lightingShader.use();
+    lightingShader.setInt("material.diffuse", 0);
+    lightingShader.setInt("material.specular", 1);
 
     // render loop
     // -----------
@@ -265,6 +302,7 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
         // teksturaKocka
         teksturaShader.use();
         glm::mat4 model = glm::mat4(1.0f);
@@ -280,7 +318,7 @@ int main()
         // cubes
         glBindVertexArray(kockaVAO);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glBindTexture(GL_TEXTURE_2D, kockaTexture.Id);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
@@ -297,30 +335,83 @@ int main()
         refleksijaShader.setMat4("projection", projection);
         refleksijaShader.setVec3("cameraPos", camera.Position);
         // cubes
-        glBindVertexArray(kockaVAO);
+        glBindVertexArray(refleksijaVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
 
+
+        //svetleca kocka
+        // be sure to activate shader when setting uniforms/drawing objects
+        lightingShader.use();
+        lightingShader.setVec3("light.position", lightPos);
+        lightingShader.setVec3("viewPos", camera.Position);
+
+        // light properties
+        lightingShader.setVec3("light.ambient", 0.2f, 0.2f, 0.2f);
+        lightingShader.setVec3("light.diffuse", 0.5f, 0.5f, 0.5f);
+        lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+        // material properties
+        lightingShader.setFloat("material.shininess", 64.0f);
+
+        // view/projection transformations
+        projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        view = camera.GetViewMatrix();
+        lightingShader.setMat4("projection", projection);
+        lightingShader.setMat4("view", view);
+
+        // world transformation
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3 (3,1,2));
+        lightingShader.setMat4("model", model);
+
+        // bind diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap.Id);
+        // bind specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap.Id);
+
+        // render the cube
+        glBindVertexArray(svetloVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+        //lampa
+        // also draw the lamp object
+        lightCubeShader.use();
+        lightCubeShader.setMat4("projection", projection);
+        lightCubeShader.setMat4("view", view);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+        lightCubeShader.setMat4("model", model);
+
+        glBindVertexArray(svetloVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+
+
+
         // draw skybox as last
+        glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         pozadinaShader.use();
         view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
-        pozadinaShader.setMat4("view", view);
+        pozadinaShader.setMat4("view", glm::mat4(glm::mat3 (view)));
         pozadinaShader.setMat4("projection", projection);
 
 
-
-
-
-        // skybox cube
         glBindVertexArray(pozadinaVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
+        glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS); // set depth function back to default
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -333,7 +424,13 @@ int main()
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &kockaVAO);
     glDeleteVertexArrays(1, &pozadinaVAO);
+    glDeleteVertexArrays(1, &svetloVAO);
+    glDeleteVertexArrays(1, &svetlecaKockaVAO);
+    glDeleteVertexArrays(1, &refleksijaVAO);
+    glDeleteBuffers(1, &svetloVBO);
+    glDeleteBuffers(1, &svetlecaKockaVBO);
     glDeleteBuffers(1, &kockaVBO);
+    glDeleteBuffers(1, &refleksijaVBO);
     glDeleteBuffers(1, &pozadinaVAO);
 
 

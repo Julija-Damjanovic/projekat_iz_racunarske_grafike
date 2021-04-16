@@ -6,8 +6,8 @@
 #include <string.h>
 
 class Texture2D {
-    unsigned int  m_Id;
 public:
+    unsigned int  Id;
     Texture2D(char const * path){
         unsigned int textureID;
         glGenTextures(1, &textureID);
@@ -43,7 +43,7 @@ public:
             stbi_image_free(data);
         }
 
-        m_Id = textureID;
+        Id = textureID;
     }
 };
 
