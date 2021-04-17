@@ -38,7 +38,25 @@ float lastFrame = 0.0f;
 glm::vec3 position;
 
 // lighting
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+struct PointLight {
+    glm::vec3 position;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+
+    float constant;
+    float linear;
+    float quadratic;
+};
+
+struct DirLight {
+    glm::vec3 direction;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
 
 int main()
 {
@@ -89,6 +107,11 @@ int main()
 
     Shader objekatShader("resources/shaders/objekatKocka.vs", "resources/shaders/objekatKocka.fs");
     Shader lightCubeShader("resources/shaders/svetloKocka.vs", "resources/shaders/svetloKocka.fs");
+
+    Shader modelShader("resources/shaders/model.vs", "resources/shaders/model.fs");
+    // load models
+    Model modelPtica(FileSystem::getPath("resources/objects/ptica/12213_Bird_v1_l3.obj"));
+    modelPtica.SetShaderTextureNamePrefix("material.");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
@@ -262,6 +285,22 @@ int main()
     objekatShader.setInt("material.diffuse", 0);
     objekatShader.setInt("material.specular", 1);
 
+    PointLight pointLight;
+    pointLight.ambient = glm::vec3(0.4, 0.4, 0.2);
+    pointLight.diffuse = glm::vec3(0.6, 0.5, 0.6);
+    pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
+    pointLight.constant = 1.0f;
+    pointLight.linear = 0.09f;
+    pointLight.quadratic = 0.032f;
+    pointLight.position = glm::vec3(2.0, 2.0, 2.0);
+
+    // directional light
+    DirLight dirLight;
+    dirLight.direction = glm::vec3 (-0.2f, -1.0f, -0.3f);
+    dirLight.ambient = glm::vec3 (0.05f, 0.05f, 0.05f);
+    dirLight.diffuse = glm::vec3 (0.4f, 0.4f, 0.4f);
+    dirLight.specular = glm::vec3 (0.5f, 0.5f, 0.5f);
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -306,27 +345,63 @@ int main()
 
 
 
+        // don't forget to enable shader before setting uniforms
+        modelShader.use();
+
+        modelShader.setVec3("dirLight.direction", dirLight.direction);
+        modelShader.setVec3("dirLight.ambient", dirLight.ambient);
+        modelShader.setVec3("dirLight.diffuse", dirLight.diffuse);
+        modelShader.setVec3("dirLight.specular", dirLight.specular);
+
+        modelShader.setVec3("viewPos", camera.Position);
+        modelShader.setFloat("material.shininess", 32.0f);
+
+        // light properties
+        modelShader.setVec3("pointLight.position", pointLight.position);
+        modelShader.setVec3("pointLight.ambient", pointLight.ambient);
+        modelShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        modelShader.setVec3("pointLight.specular", pointLight.specular);
+        modelShader.setFloat("pointLight.constant", pointLight.constant);
+        modelShader.setFloat("pointLight.linear", pointLight.linear);
+        modelShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+
+        // view/projection transformations
+        projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        view = camera.GetViewMatrix();
+        modelShader.setMat4("projection", projection);
+        modelShader.setMat4("view", view);
+
+        // render the loaded model
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.0f) + position); // translate it down so it's at the center of the scene
+        model = glm::rotate(model, (float) -3.14/2, glm::vec3(1.0, 0, 0));
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+        modelShader.setMat4("model", model);
+        modelPtica.Draw(modelShader);
+
+
+
         //svetleca kocka
         // be sure to activate shader when setting uniforms/drawing objects
         objekatShader.use();
 
         // directional light
-        objekatShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        objekatShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-        objekatShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-        objekatShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        objekatShader.setVec3("dirLight.direction", dirLight.direction);
+        objekatShader.setVec3("dirLight.ambient", dirLight.ambient);
+        objekatShader.setVec3("dirLight.diffuse", dirLight.diffuse);
+        objekatShader.setVec3("dirLight.specular", dirLight.specular);
 
         objekatShader.setVec3("viewPos", camera.Position);
         objekatShader.setFloat("material.shininess", 32.0f);
 
         // light properties
-        objekatShader.setVec3("pointLight.position", lightPos);
-        objekatShader.setVec3("pointLight.ambient", 0.05f, 0.05f, 0.05f);
-        objekatShader.setVec3("pointLight.diffuse", 0.8f, 0.8f, 0.8f);
-        objekatShader.setVec3("pointLight.specular", 1.0f, 1.0f, 1.0f);
-        objekatShader.setFloat("pointLight.constant", 1.0f);
-        objekatShader.setFloat("pointLight.linear", 0.09);
-        objekatShader.setFloat("pointLight.quadratic", 0.032);
+        objekatShader.setVec3("pointLight.position", pointLight.position);
+        objekatShader.setVec3("pointLight.ambient", pointLight.ambient);
+        objekatShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        objekatShader.setVec3("pointLight.specular", pointLight.specular);
+        objekatShader.setFloat("pointLight.constant", pointLight.constant);
+        objekatShader.setFloat("pointLight.linear", pointLight.linear);
+        objekatShader.setFloat("pointLight.quadratic", pointLight.quadratic);
 
         // view/projection transformations
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -357,8 +432,8 @@ int main()
         lightCubeShader.setMat4("projection", projection);
         lightCubeShader.setMat4("view", view);
         model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+        model = glm::translate(model, pointLight.position);
+        model = glm::scale(model, glm::vec3(0.5f)); // a smaller cube
         lightCubeShader.setMat4("model", model);
 
         glBindVertexArray(svetloVAO);
