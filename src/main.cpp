@@ -4,8 +4,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <cmath>
 #include <learnopengl/filesystem.h>
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
@@ -14,30 +12,29 @@
 #include <iostream>
 #include <rg/Texture2D.h>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 unsigned int loadTexture(const char *path);
 unsigned int loadCubemap(vector<std::string> faces);
 
-// settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 900;
+const unsigned int SCR_HEIGHT = 700;
 
-// camera
+//kamera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = (float)SCR_WIDTH / 2.0;
 float lastY = (float)SCR_HEIGHT / 2.0;
 bool firstMouse = true;
 
-// timing
+//vreme
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 glm::vec3 position;
 
-// lighting
+//svetlost
 struct PointLight {
     glm::vec3 position;
 
@@ -60,8 +57,7 @@ struct DirLight {
 
 int main()
 {
-    // glfw: initialize and configure
-    // ------------------------------
+    // glfw: inicijalizacija i konfiguracija
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -71,8 +67,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    // glfw window creation
-    // --------------------
+    //pravimo prozor
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Projekat", NULL, NULL);
     if (window == NULL)
     {
@@ -81,31 +76,26 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
-    // tell GLFW to capture our mouse
+    // sklanjamo misa
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
+    // ucitavanje opengl funkcija
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
-    // configure global opengl state
-    // -----------------------------
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    //change culling
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    // build and compile shaders
-    // -------------------------
+
+
     Shader pozadinaShader("resources/shaders/pozadina.vs", "resources/shaders/pozadina.fs");
     Shader refleksijaShader("resources/shaders/refleksijaKocka.vs", "resources/shaders/refleksijaKocka.fs");
 
@@ -117,11 +107,10 @@ int main()
     Model modelPtica(FileSystem::getPath("resources/objects/ptica/12213_Bird_v1_l3.obj"));
     modelPtica.SetShaderTextureNamePrefix("material.");
 
-    // set up vertex data (and buffer(s)) and configure vertex attributes
 
 
     float kockaVertices[] = {
-            // positions       // texture Coords  //normale
+            // tacke            // tekstura    //normale
             -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, -1.0f,
             0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, -1.0f,
             0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, -1.0f,
@@ -130,18 +119,18 @@ int main()
             -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, -1.0f,
 
             -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
             0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,
             -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,
 
             -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
             -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, -1.0f,  0.0f,  0.0f,
             -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, -1.0f,  0.0f,  0.0f,
 
             0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f,
             0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,  0.0f,  0.0f,
@@ -151,11 +140,11 @@ int main()
             0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,  0.0f,  0.0f,
 
             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, -1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,
             0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f, -1.0f,  0.0f,
             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, -1.0f,  0.0f,
             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, -1.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, -1.0f,  0.0f,
 
             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f,  0.0f,
             0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,
@@ -168,7 +157,6 @@ int main()
 
 
     float pozadinaVertices[] = {
-            // positions
             -1.0f,  1.0f, -1.0f,
             -1.0f, -1.0f, -1.0f,
             1.0f, -1.0f, -1.0f,
@@ -249,7 +237,6 @@ int main()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 
-    // skybox VAO
     unsigned int pozadinaVAO, pozadinaVBO;
     glGenVertexArrays(1, &pozadinaVAO);
     glGenBuffers(1, &pozadinaVBO);
@@ -260,8 +247,6 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
 
-    // load textures
-    // -------------
     Texture2D diffuseMap (FileSystem::getPath("resources/textures/Tekstura.jpg").c_str());
     Texture2D specularMap (FileSystem::getPath("resources/textures/SpecularMap.jpg").c_str());
 
@@ -275,9 +260,6 @@ int main()
                     FileSystem::getPath("resources/textures/priroda/back.jpg")
             };
     unsigned int cubemapTexture = loadCubemap(faces);
-
-    // shader configuration
-    // --------------------
 
     refleksijaShader.use();
     refleksijaShader.setInt("refleksija", 0);
@@ -298,33 +280,28 @@ int main()
     pointLight.quadratic = 0.032f;
     pointLight.position = glm::vec3(2.0, 2.0, 2.0);
 
-    // directional light
     DirLight dirLight;
     dirLight.direction = glm::vec3 (-0.2f, -1.0f, -0.3f);
     dirLight.ambient = glm::vec3 (0.05f, 0.05f, 0.05f);
     dirLight.diffuse = glm::vec3 (0.4f, 0.4f, 0.4f);
     dirLight.specular = glm::vec3 (0.5f, 0.5f, 0.5f);
 
-    // render loop
-    // -----------
+
     while (!glfwWindowShouldClose(window))
     {
-        // per-frame time logic
-        // --------------------
+
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // input
-        // -----
+
         processInput(window);
 
-        // render
-        // ------
+
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+        glCullFace(GL_BACK);
 
         // refleksijaKocka
         refleksijaShader.use();
@@ -340,18 +317,69 @@ int main()
         refleksijaShader.setMat4("view", view);
         refleksijaShader.setMat4("projection", projection);
         refleksijaShader.setVec3("cameraPos", camera.Position);
-        // cubes
-        glDisable(GL_CULL_FACE);
         glBindVertexArray(refleksijaVAO);
         glActiveTexture(GL_TEXTURE0);
-
-
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
 
-        // don't forget to enable shader before setting uniforms
+
+        //tackasto svetlo
+        lightCubeShader.use();
+        lightCubeShader.setMat4("projection", projection);
+        lightCubeShader.setMat4("view", view);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, pointLight.position);
+        model = glm::scale(model, glm::vec3(0.5f)); // a smaller cube
+        lightCubeShader.setMat4("model", model);
+        glBindVertexArray(svetloVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+
+        glCullFace(GL_FRONT);
+
+        //objekat kocka
+        objekatShader.use();
+        objekatShader.setVec3("dirLight.direction", dirLight.direction);
+        objekatShader.setVec3("dirLight.ambient", dirLight.ambient);
+        objekatShader.setVec3("dirLight.diffuse", dirLight.diffuse);
+        objekatShader.setVec3("dirLight.specular", dirLight.specular);
+
+        objekatShader.setVec3("viewPos", camera.Position);
+        objekatShader.setFloat("material.shininess", 32.0f);
+
+        objekatShader.setVec3("pointLight.position", pointLight.position);
+        objekatShader.setVec3("pointLight.ambient", pointLight.ambient);
+        objekatShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+        objekatShader.setVec3("pointLight.specular", pointLight.specular);
+        objekatShader.setFloat("pointLight.constant", pointLight.constant);
+        objekatShader.setFloat("pointLight.linear", pointLight.linear);
+        objekatShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+
+        projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        view = camera.GetViewMatrix();
+        objekatShader.setMat4("projection", projection);
+        objekatShader.setMat4("view", view);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, position);
+        objekatShader.setMat4("model", model);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap.Id);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap.Id);
+        glBindVertexArray(svetloVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
+
+
+
+        glDisable(GL_CULL_FACE);
+
         modelShader.use();
 
         modelShader.setVec3("dirLight.direction", dirLight.direction);
@@ -362,7 +390,6 @@ int main()
         modelShader.setVec3("viewPos", camera.Position);
         modelShader.setFloat("material.shininess", 32.0f);
 
-        // light properties
         modelShader.setVec3("pointLight.position", pointLight.position);
         modelShader.setVec3("pointLight.ambient", pointLight.ambient);
         modelShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -371,96 +398,22 @@ int main()
         modelShader.setFloat("pointLight.linear", pointLight.linear);
         modelShader.setFloat("pointLight.quadratic", pointLight.quadratic);
 
-        // view/projection transformations
         projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         view = camera.GetViewMatrix();
         modelShader.setMat4("projection", projection);
         modelShader.setMat4("view", view);
 
-
-        // render the loaded model
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.0f) + position); // translate it down so it's at the center of the scene
+        model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.0f) + position);
         model = glm::rotate(model, (float) -3.14/2, glm::vec3(1.0, 0, 0));
-        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
+        model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
         modelShader.setMat4("model", model);
         modelPtica.Draw(modelShader);
-        glEnable(GL_CULL_FACE);
 
-
-        //svetleca kocka
-        // be sure to activate shader when setting uniforms/drawing objects
-        objekatShader.use();
-
-        // directional light
-        objekatShader.setVec3("dirLight.direction", dirLight.direction);
-        objekatShader.setVec3("dirLight.ambient", dirLight.ambient);
-        objekatShader.setVec3("dirLight.diffuse", dirLight.diffuse);
-        objekatShader.setVec3("dirLight.specular", dirLight.specular);
-
-        objekatShader.setVec3("viewPos", camera.Position);
-        objekatShader.setFloat("material.shininess", 32.0f);
-
-        // light properties
-        objekatShader.setVec3("pointLight.position", pointLight.position);
-        objekatShader.setVec3("pointLight.ambient", pointLight.ambient);
-        objekatShader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        objekatShader.setVec3("pointLight.specular", pointLight.specular);
-        objekatShader.setFloat("pointLight.constant", pointLight.constant);
-        objekatShader.setFloat("pointLight.linear", pointLight.linear);
-        objekatShader.setFloat("pointLight.quadratic", pointLight.quadratic);
-
-        // view/projection transformations
-        projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        view = camera.GetViewMatrix();
-        objekatShader.setMat4("projection", projection);
-        objekatShader.setMat4("view", view);
-
-        // world transformation
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, position);
-        objekatShader.setMat4("model", model);
-
-
-        // bind diffuse map
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, diffuseMap.Id);
-        // bind specular map
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, specularMap.Id);
-        glCullFace(GL_BACK);
-        // render the cube
-        glBindVertexArray(svetloVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-
-
-
-        glDisable(GL_CULL_FACE);
-        //tackasto svetlo
-        // also draw the lamp object
-        lightCubeShader.use();
-        lightCubeShader.setMat4("projection", projection);
-        lightCubeShader.setMat4("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, pointLight.position);
-        model = glm::scale(model, glm::vec3(0.5f)); // a smaller cube
-        lightCubeShader.setMat4("model", model);
-
-        glBindVertexArray(svetloVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-
-
-
-
-
-        // draw skybox as last
         glDepthMask(GL_FALSE);
-        glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+        glDepthFunc(GL_LEQUAL);
         pozadinaShader.use();
-        view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // remove translation from the view matrix
+        view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
         pozadinaShader.setMat4("view", glm::mat4(glm::mat3 (view)));
         pozadinaShader.setMat4("projection", projection);
 
@@ -471,18 +424,14 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthMask(GL_TRUE);
-        glDepthFunc(GL_LESS); // set depth function back to default
+        glDepthFunc(GL_LESS);
         glEnable(GL_CULL_FACE);
 
-
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // optional: de-allocate all resources once they've outlived their purpose:
-    // ------------------------------------------------------------------------
+
     glDeleteVertexArrays(1, &pozadinaVAO);
     glDeleteVertexArrays(1, &svetloVAO);
     glDeleteVertexArrays(1, &svetlecaKockaVAO);
@@ -497,8 +446,7 @@ int main()
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
+
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -530,17 +478,8 @@ void processInput(GLFWwindow *window)
     }
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    // make sure the viewport matches the new window dimensions; note that width and
-    // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
-}
 
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
+
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (firstMouse)
@@ -551,7 +490,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     }
 
     float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    float yoffset = lastY - ypos;
 
     lastX = xpos;
     lastY = ypos;
@@ -559,8 +498,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(yoffset);

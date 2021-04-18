@@ -179,10 +179,6 @@ glm/glm.hpp
 -
 glm/gtc/matrix_transform.hpp
 -
-glm/gtc/type_ptr.hpp
--
-cmath
--
 learnopengl/filesystem.h
 -
 learnopengl/shader_m.h
