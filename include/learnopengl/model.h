@@ -13,6 +13,8 @@
 #include <learnopengl/mesh.h>
 #include <learnopengl/shader.h>
 
+#include <rg/Error.h>
+
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -236,6 +238,8 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
             format = GL_RGB;
         else if (nrComponents == 4)
             format = GL_RGBA;
+        else
+            ASSERT(false, "Failed to load texture!\n");
 
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);

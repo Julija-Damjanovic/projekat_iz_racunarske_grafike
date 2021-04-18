@@ -17,8 +17,8 @@ Projekat predstavlja osnove OPENGL-a i racunarske grafike. Obuhvata gradivo sa v
 
 
 ### :video_game: Komande:
-A,W,S,D su komande za pomeranje kamere .
-up,down,rigth,left(strelice na tastaturi su komande za pomeranje objekta(kocke sa mapiranom teksturom)).
+A, W, S, D su komande za pomeranje kamere .
+up, down, rigth, left, o, p(strelice na tastaturi su komande za pomeranje objekta(kocke sa mapiranom teksturom)).
 
 
 
