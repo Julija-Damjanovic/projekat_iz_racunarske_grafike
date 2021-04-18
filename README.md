@@ -16,6 +16,9 @@ Iskopirani folderi iz project_base koji smo koristili na vezbama(project_base)
 Projekat predstavlja osnove OPENGL-a i racunarske grafike. Obuhvata gradivo sa vezbi iz predmeta Racunarska grafika na Matematickom fakultetu. 
 
 
+### :video_game: Komande:
+A,W,S,D su komade za pomeranje kamere .
+up,down,rigth,left(strelice na tastaturi su komande za pomeranje objekta(kocke sa mapiranom teksturom))
 
 
 
