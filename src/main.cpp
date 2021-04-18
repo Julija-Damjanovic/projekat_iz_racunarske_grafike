@@ -99,7 +99,11 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
+    //change culling
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     // build and compile shaders
     // -------------------------
     Shader pozadinaShader("resources/shaders/pozadina.vs", "resources/shaders/pozadina.fs");
@@ -114,7 +118,7 @@ int main()
     modelPtica.SetShaderTextureNamePrefix("material.");
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
+
 
     float kockaVertices[] = {
             // positions       // texture Coords  //normale
@@ -337,12 +341,14 @@ int main()
         refleksijaShader.setMat4("projection", projection);
         refleksijaShader.setVec3("cameraPos", camera.Position);
         // cubes
+        glDisable(GL_CULL_FACE);
         glBindVertexArray(refleksijaVAO);
         glActiveTexture(GL_TEXTURE0);
+
+
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
-
 
 
         // don't forget to enable shader before setting uniforms
@@ -371,6 +377,7 @@ int main()
         modelShader.setMat4("projection", projection);
         modelShader.setMat4("view", view);
 
+
         // render the loaded model
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.5f, 0.0f) + position); // translate it down so it's at the center of the scene
@@ -378,7 +385,7 @@ int main()
         model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));	// it's a bit too big for our scene, so scale it down
         modelShader.setMat4("model", model);
         modelPtica.Draw(modelShader);
-
+        glEnable(GL_CULL_FACE);
 
 
         //svetleca kocka
@@ -414,18 +421,23 @@ int main()
         model = glm::translate(model, position);
         objekatShader.setMat4("model", model);
 
+
         // bind diffuse map
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap.Id);
         // bind specular map
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMap.Id);
-
+        glCullFace(GL_BACK);
         // render the cube
         glBindVertexArray(svetloVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
+
+
+
+        glDisable(GL_CULL_FACE);
         //tackasto svetlo
         // also draw the lamp object
         lightCubeShader.use();
@@ -439,6 +451,7 @@ int main()
         glBindVertexArray(svetloVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
+
 
 
 
@@ -459,6 +472,8 @@ int main()
         glBindVertexArray(0);
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS); // set depth function back to default
+        glEnable(GL_CULL_FACE);
+
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

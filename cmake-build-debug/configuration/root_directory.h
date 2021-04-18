@@ -1,1 +1,1 @@
-const char * logl_root = "/home/elgrande/projekat_iz_racunarske_grafike";
+const char * logl_root = "/home/julija/Desktop/projekat_iz_racunarske_grafike";
