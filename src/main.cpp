@@ -157,47 +157,29 @@ int main()
 
 
     float pozadinaVertices[] = {
-            -1.0f,  1.0f, -1.0f,
-            -1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f,  1.0f, -1.0f,
-            -1.0f,  1.0f, -1.0f,
-
-            -1.0f, -1.0f,  1.0f,
-            -1.0f, -1.0f, -1.0f,
-            -1.0f,  1.0f, -1.0f,
-            -1.0f,  1.0f, -1.0f,
             -1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f, -1.0f,
             -1.0f, -1.0f,  1.0f,
-
-            1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f,
             1.0f, -1.0f,  1.0f,
-            1.0f,  1.0f,  1.0f,
-            1.0f,  1.0f,  1.0f,
+            1.0f, -1.0f, -1.0f,
             1.0f,  1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
+            1.0f,  1.0f,  1.0f
+    };
 
-            -1.0f, -1.0f,  1.0f,
-            -1.0f,  1.0f,  1.0f,
-            1.0f,  1.0f,  1.0f,
-            1.0f,  1.0f,  1.0f,
-            1.0f, -1.0f,  1.0f,
-            -1.0f, -1.0f,  1.0f,
-
-            -1.0f,  1.0f, -1.0f,
-            1.0f,  1.0f, -1.0f,
-            1.0f,  1.0f,  1.0f,
-            1.0f,  1.0f,  1.0f,
-            -1.0f,  1.0f,  1.0f,
-            -1.0f,  1.0f, -1.0f,
-
-            -1.0f, -1.0f, -1.0f,
-            -1.0f, -1.0f,  1.0f,
-            1.0f, -1.0f, -1.0f,
-            1.0f, -1.0f, -1.0f,
-            -1.0f, -1.0f,  1.0f,
-            1.0f, -1.0f,  1.0f
+    unsigned int indices[] = {
+            1, 3, 5,
+            5, 6, 1,
+            2, 3, 1,
+            1, 0, 2,
+            5, 4, 7,
+            7, 6, 5,
+            2, 0, 7,
+            7, 4, 2,
+            1, 6, 7,
+            7, 0, 1,
+            3, 2, 5,
+            5, 2, 4
     };
 
 
@@ -212,6 +194,7 @@ int main()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
+    glBindVertexArray(0);
 
     unsigned int svetlecaKockaVAO, svetlecaKockaVBO;
     glGenVertexArrays(1, &svetlecaKockaVAO);
@@ -225,6 +208,7 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+    glBindVertexArray(0);
 
     unsigned int refleksijaVAO, refleksijaVBO;
     glGenVertexArrays(1, &refleksijaVAO);
@@ -236,15 +220,21 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+    glBindVertexArray(0);
 
-    unsigned int pozadinaVAO, pozadinaVBO;
+    unsigned int pozadinaVAO, pozadinaVBO, pozadinaEBO;
     glGenVertexArrays(1, &pozadinaVAO);
     glGenBuffers(1, &pozadinaVBO);
+    glGenBuffers(1, &pozadinaEBO);
     glBindVertexArray(pozadinaVAO);
     glBindBuffer(GL_ARRAY_BUFFER, pozadinaVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(pozadinaVertices), &pozadinaVertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pozadinaEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
 
 
     Texture2D diffuseMap (FileSystem::getPath("resources/textures/Tekstura.jpg").c_str());
@@ -421,7 +411,8 @@ int main()
         glBindVertexArray(pozadinaVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(pozadinaVAO);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
@@ -440,6 +431,8 @@ int main()
     glDeleteBuffers(1, &svetlecaKockaVBO);
     glDeleteBuffers(1, &refleksijaVBO);
     glDeleteBuffers(1, &pozadinaVAO);
+    glDeleteBuffers(1, &pozadinaEBO);
+
 
 
     glfwTerminate();
